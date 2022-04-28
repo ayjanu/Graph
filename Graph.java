@@ -203,10 +203,12 @@ public class Graph {
 	 */
 	public void dijkstra(String startName) {
 		if (startName == null) {
-			throw new IllegalArgumentException("Violation of precondition. " + "Vertex name may not be null.");
+			throw new IllegalArgumentException(
+					"Violation of precondition. " + "Vertex name may not be null.");
 		}
 		if (!containsVertex(startName)) {
-			throw new NoSuchElementException("No Vertex named " + startName + " exists in this Graph");
+			throw new NoSuchElementException(
+					"No Vertex named " + startName + " exists in this Graph");
 		}
 		currentStartVertexName = startName;
 		Vertex start = getVertex(startName); // pick the start vertex
@@ -218,7 +220,7 @@ public class Graph {
 		PriorityQueue<Path> pathQ = new PriorityQueue<Path>();
 		Vertex current = getVertex(unvisIt.next());
 		unvisIt.remove();
-		// current vertex has lowest cost path to start that has not been visited
+		// current has lowest start cost not been visited
 		while (unvisited.size() > 0) {
 			int vertIndex = findMyVNode(pathLens, current);
 			findLowestPath(pathLens, vertIndex, unvisited, pathQ);
@@ -249,9 +251,11 @@ public class Graph {
 			if (!unvisited.contains(adj.dest.name)) {
 				continue;
 			}
-			double newCost = adj.dest.weightedCostFromStartVertex + adj.cost;
-			if (newCost < pathLens[vertIndex].getCost()) {
-				pathLens[vertIndex].setCost(vertIndex);
+			int destIndex = findMyVNode(pathLens, adj.dest);
+			double newCost = tgt.weightedCostFromStartVertex + adj.cost;
+			double destCost = pathLens[destIndex].getCost();
+			if (newCost < destCost) {
+				pathLens[destIndex].setCost(newCost);
 			}
 			adj.dest.scratch = 1;
 			pathQ.add(new Path(adj.dest, adj.cost));
@@ -259,6 +263,7 @@ public class Graph {
 	}
 
 	// search VNode array for node representing tgt Vertex
+	// return index of vertex
 	private int findMyVNode(VNode[] pathLens, Vertex tgt) {
 		for (int ver = 0; ver < pathLens.length; ver++) {
 			if (pathLens[ver].getVert().name.equals(tgt.name)) {
@@ -267,8 +272,9 @@ public class Graph {
 		}
 		return -1; // not found
 	}
-	
+
 	// check all paths found
+	// return boolean
 	private boolean allPathsFound(VNode[] pathLens) {
 		for (VNode vertex : pathLens) {
 			if (vertex.vert.scratch != 1) {
@@ -277,6 +283,8 @@ public class Graph {
 		}
 		return true;
 	}
+	
+	// update map with shortest paths
 
 	/**
 	 * Find all shortest paths between all pairs of vertices in this Graph. This
@@ -319,8 +327,30 @@ public class Graph {
 	 *                 weights for edges. All edge weights considered to be 1.)
 	 */
 	public void findAllPaths(boolean weighted) {
-
-		// TODO CS314 Students, complete this method.
+		allPathsFound = true;
+		longest = new Path();
+		for (String verticeName : vertices.keySet()) {
+			Vertex currentVertice = vertices.get(verticeName);
+			// zero out the sum of paths
+			currentVertice.clearPathInfo();
+			clearAll();
+			if (weighted) {
+				dijkstra(verticeName);
+			} else {
+				findUnweightedShortestPath(verticeName);
+			}
+			// iterate through each value
+			for (Vertex tv : vertices.values()) {
+				if ((!tv.equals(currentVertice))
+						&& (tv.weightedCostFromStartVertex < INFINITY)) {
+					currentVertice.totalUnweightedPathLength += tv.numEdgesFromStartVertex;
+					currentVertice.totalWeightedPathLength += tv.weightedCostFromStartVertex;
+					currentVertice.numVertexConnected++;
+					if (tv.weightedCostFromStartVertex > longest.weightedCostOfPath)
+						longest = getPath(tv.name);
+				}
+			}
+		}
 	}
 
 	/*
@@ -493,8 +523,7 @@ public class Graph {
 			throw new IllegalArgumentException(
 					"Violation of precondition. " + "Vertex name may not be null.");
 		} else if (!containsVertex(destName)) {
-			throw new NoSuchElementException(
-					"No Vertex named " + destName + " exists in this Graph");
+			throw new NoSuchElementException("No Vertex named " + destName + " exists in this Graph");
 		}
 
 		List<String> result = new LinkedList<>();
