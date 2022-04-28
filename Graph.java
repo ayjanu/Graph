@@ -208,10 +208,11 @@ public class Graph {
 		if (!containsVertex(startName)) {
 			throw new NoSuchElementException("No Vertex named " + startName + " exists in this Graph");
 		}
+		currentStartVertexName = startName;
 		Vertex start = getVertex(startName); // pick the start vertex
 		// set start cost to 0 and all others cost to inf
 		VNode[] pathLens = new VNode[vertices.size()];
-		initialUnknown(pathLens, start);
+		initialUnknown(pathLens);
 		Set<String> unvisited = vertices.keySet();
 		Iterator<String> unvisIt = unvisited.iterator();
 		PriorityQueue<Path> pathQ = new PriorityQueue<Path>();
@@ -224,16 +225,19 @@ public class Graph {
 			current = getVertex(unvisIt.next());
 			unvisIt.remove();
 		}
+		if (allPathsFound(pathLens)) {
+			allPathsFound = true;
+		}
 	}
 
 	// initialize array of vertex nodes holding unknown path lengths
-	private void initialUnknown(VNode[] pathLens, Vertex start) {
+	private void initialUnknown(VNode[] pathLens) {
 		Collection<Vertex> vertix = vertices.values();
 		Iterator<Vertex> vIt = vertix.iterator();
-		pathLens[0] = new VNode(start, 0);
+		pathLens[0] = new VNode(vIt.next(), 0);
 		for (int vert = 1; vert < pathLens.length; vert++) {
 			Vertex curr = vIt.next();
-			pathLens[vert] = new VNode(curr, INFINITY);
+			pathLens[vert] = new VNode(curr);
 		}
 	}
 
@@ -249,6 +253,7 @@ public class Graph {
 			if (newCost < pathLens[vertIndex].getCost()) {
 				pathLens[vertIndex].setCost(vertIndex);
 			}
+			adj.dest.scratch = 1;
 			pathQ.add(new Path(adj.dest, adj.cost));
 		}
 	}
@@ -261,6 +266,16 @@ public class Graph {
 			}
 		}
 		return -1; // not found
+	}
+	
+	// check all paths found
+	private boolean allPathsFound(VNode[] pathLens) {
+		for (VNode vertex : pathLens) {
+			if (vertex.vert.scratch != 1) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	/**
@@ -626,8 +641,7 @@ public class Graph {
 										// vert
 
 		public VNode(Vertex v) {
-			vert = v;
-			lowestCostPath = Double.MAX_VALUE;
+			this(v, INFINITY);
 		}
 
 		public VNode(Vertex v, double lowCost) {
