@@ -249,7 +249,7 @@ public class Graph {
 			if (!unvisited.contains(adj.dest.name)) {
 				continue;
 			}
-			double newCost = tgt.weightedCostFromStartVertex + adj.cost;
+			double newCost = adj.dest.weightedCostFromStartVertex + adj.cost;
 			if (newCost < pathLens[vertIndex].getCost()) {
 				pathLens[vertIndex].setCost(vertIndex);
 			}
