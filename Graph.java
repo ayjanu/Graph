@@ -219,23 +219,21 @@ public class Graph {
 		unvisIt.remove();
 		// current vertex has lowest cost path to start that has not been visited
 		while (unvisited.size() > 0) {
-			Path compare = pathQ.remove();
 			int vertIndex = findMyVNode(pathLens, current);
 			findLowestPath(pathLens, vertIndex, unvisited, pathQ);
-			current = compare.dest;
-			unvisited.remove(current.name);
+			current = getVertex(unvisIt.next());
+			unvisIt.remove();
 		}
 	}
 
+	// initialize array of vertex nodes holding unknown path lengths
 	private void initialUnknown(VNode[] pathLens, Vertex start) {
 		Collection<Vertex> vertix = vertices.values();
 		Iterator<Vertex> vIt = vertix.iterator();
 		pathLens[0] = new VNode(start, 0);
 		for (int vert = 1; vert < pathLens.length; vert++) {
 			Vertex curr = vIt.next();
-			if (!curr.equals(start)) { // ensure start vertex in front
-				pathLens[vert] = new VNode(vIt.next());
-			}
+			pathLens[vert] = new VNode(curr, INFINITY);
 		}
 	}
 

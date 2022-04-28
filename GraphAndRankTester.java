@@ -36,7 +36,7 @@ public class GraphAndRankTester {
      * @param args None expected.
      */
     public static void main(String[] args)  {
-        graphTests();
+    	graphTests();
 
         String actual = "2008ap_poll.txt";
         String gameResults = "div12008.txt";
