@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -215,7 +216,8 @@ public class Graph {
 		// set start cost to 0 and all others cost to inf
 		VNode[] pathLens = new VNode[vertices.size()];
 		initialUnknown(pathLens);
-		Set<String> unvisited = vertices.keySet();
+		HashSet<String> unvisited = new HashSet<String>();
+		unvisited.addAll(vertices.keySet());
 		Iterator<String> unvisIt = unvisited.iterator();
 		PriorityQueue<Path> pathQ = new PriorityQueue<Path>();
 		Vertex current = getVertex(unvisIt.next());
